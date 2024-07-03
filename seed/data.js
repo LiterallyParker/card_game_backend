@@ -1,0 +1,141 @@
+const users = [
+  {
+    "firstname":"DEV_MODE",
+    "lastname":"[ACTIVATED]",
+    "username":"LiterallyDev",
+    "email":"parkernash2001@gmail.com",
+    "role":"SUPER SECRET CODE MAN",
+    "password":"1jh72hxc7d3n79s#16427"
+  },
+  {
+    "firstname":"Micheal",
+    "lastname":"Scott",
+    "username":"RoyalFlusher21",
+    "email":"email2@website.com",
+    "role":"guest",
+    "password":"password4email2"
+  },
+  {
+    "firstname":"Jeff",
+    "lastname":"Gordon",
+    "username":"KnowWhen2HoldEm",
+    "email":"email3@website.com",
+    "role":"guest",
+    "password":"password4email3"
+  }
+];
+const suits = [
+  {
+    "name":"Clubs",
+    "imageUrl":"https://static.vecteezy.com/system/resources/previews/012/227/688/original/playing-card-suit-symbol-clubs-png.png"
+  },
+  {
+    "name":"Hearts",
+    "imageUrl":"https://cdn-icons-png.flaticon.com/512/9131/9131541.png"
+  },
+  {
+    "name":"Diamonds",
+    "imageUrl":"https://upload.wikimedia.org/wikipedia/en/thumb/1/1f/Card_diamond.svg/1200px-Card_diamond.svg.png"
+  },
+  {
+    "name":"Spades",
+    "imageUrl":"https://static.vecteezy.com/system/resources/previews/012/227/439/original/playing-card-suit-symbol-spades-png.png"
+  }
+];
+const ranks = [
+  {
+    "name":"2",
+    "value":2
+  },
+  {
+    "name":"3",
+    "value":3
+  },
+  {
+    "name":"4",
+    "value":4
+  },
+  {
+    "name":"5",
+    "value":5
+  },
+  {
+    "name":"6",
+    "value":6
+  },
+  {
+    "name":"7",
+    "value":7
+  },
+  {
+    "name":"8",
+    "value":8
+  },
+  {
+    "name":"9",
+    "value":9
+  },
+  {
+    "name":"10",
+    "value":10
+  },
+  {
+    "name":"Jack",
+    "value":11
+  },
+  {
+    "name":"Queen",
+    "value":12
+  },
+  {
+    "name":"King",
+    "value":13
+  },
+  {
+    "name":"Ace",
+    "value":14
+  }
+];
+const types = [
+  {
+    "id":1,
+    "name":"Nothin",
+  },
+  {
+    "id":2,
+    "name":"Pair",
+  },
+  {
+    "id":3,
+    "name":"Two Pair",
+  },
+  {
+    "id":4,
+    "name":"Three of a kind",
+  },
+  {
+    "id":5,
+    "name":"Straight",
+  },
+  {
+    "id":6,
+    "name":"Flush",
+  },
+  {
+    "id":7,
+    "name":"Fullhouse",
+  },
+  {
+    "id":8,
+    "name":"Four of a kind",
+  },
+  {
+    "id":9,
+    "name":"Straight Flush",
+  },
+  {
+    "id":10,
+    "name":"ROYAL FLUSH",
+  },
+]
+module.exports = { users, suits, ranks, types };
