@@ -49,9 +49,28 @@ function getSmallest(numArray) {
   return restult;
 }
 
+function sortHands(hands) {
+  return hands.sort((other, hand) => {
+    if (hand.type.id === other.type.id) {
+      const handIds = hand.cardIds;
+      const otherIds = other.cardIds;
+      for (let i = 0; i < handIds.length; i++) {
+        const handId = handIds[i];
+        const otherId = otherIds[i];
+        if (handId === other.id) {
+          continue;
+        }
+        return handId - otherId;
+      }
+    }
+    return hand.type.id - other.type.id;
+  });
+};
+
 module.exports = {
   getLargest,
   getSmallest,
   generateCardIds,
-  dbFields
+  dbFields,
+  sortHands
 };

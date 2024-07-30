@@ -14,7 +14,6 @@ async function seedUsers() {
       await addUser({ firstname, lastname, username, email, password })
     }
 
-    console.log("    ...users seeded.\n");
   } catch (error) {
     console.error(error);
 

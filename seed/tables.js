@@ -6,14 +6,13 @@ async function seedTables(client) {
     console.log("    creating tables...");
 
     await client.query(`
+      DROP TABLE IF EXISTS hands;
       DROP TABLE IF EXISTS leaderboard;
       DROP TABLE IF EXISTS users;
-      DROP TABLE IF EXISTS hands;
-      DROP TABLE IF EXISTS scores;
-      DROP TABLE IF EXISTS cards;
-      DROP TABLE IF EXISTS suits;
-      DROP TABLE IF EXISTS ranks;
       DROP TABLE IF EXISTS types;
+      DROP TABLE IF EXISTS cards;
+      DROP TABLE IF EXISTS ranks;
+      DROP TABLE IF EXISTS suits;
       `);
 
     await client.query(`
@@ -27,7 +26,7 @@ async function seedTables(client) {
       CREATE TABLE ranks(
         id SERIAL PRIMARY KEY,
         name VARCHAR(255) NOT NULL,
-        value INT NOT NULL
+        value INT UNIQUE NOT NULL
       )`);
 
     await client.query(`
@@ -45,46 +44,35 @@ async function seedTables(client) {
       )`);
 
     await client.query(`
-      CREATE TABLE hands(
-        id SERIAL PRIMARY KEY,
-        card1 INT REFERENCES cards(id) NOT NULL,
-        card2 INT REFERENCES cards(id) NOT NULL,
-        card3 INT REFERENCES cards(id) NOT NULL,
-        card4 INT REFERENCES cards(id) NOT NULL,
-        card5 INT REFERENCES cards(id) NOT NULL,
-        "typeId" INT REFERENCES types(id) NOT NULL,
-        "highCardId" INT REFERENCES cards(id) NOT NULL,
-        "highCardValue" INT NOT NULL
-      )`);
-
-    await client.query(`
       CREATE TABLE users(
         id SERIAL PRIMARY KEY,
         firstname VARCHAR(255),
         lastname VARCHAR(255),
         username VARCHAR(255) UNIQUE NOT NULL,
         email VARCHAR(255) NOT NULL,
-        role VARCHAR NOT NULL,
-        "handId" INT REFERENCES hands(id) NOT NULL,
-        hash VARCHAR(255) NOT NULL
+        role VARCHAR(255) NOT NULL,
+        hash VARCHAR(255) NOT NULL,
+        card1id INT REFERENCES cards(id) NOT NULL,
+        card2id INT REFERENCES cards(id) NOT NULL,
+        card3id INT REFERENCES cards(id) NOT NULL,
+        card4id INT REFERENCES cards(id) NOT NULL,
+        card5id INT REFERENCES cards(id) NOT NULL,
+        "typeId" INT REFERENCES types(id) NOT NULL
       )`);
 
     await client.query(`
-      CREATE TABLE leaderboard(
+      CREATE TABLE hands(
         id SERIAL PRIMARY KEY,
         "userId" INT REFERENCES users(id) NOT NULL,
-        card1 INT REFERENCES cards(id) NOT NULL,
-        card2 INT REFERENCES cards(id) NOT NULL,
-        card3 INT REFERENCES cards(id) NOT NULL,
-        card4 INT REFERENCES cards(id) NOT NULL,
-        card5 INT REFERENCES cards(id) NOT NULL,
+        card1id INT REFERENCES cards(id) NOT NULL,
+        card2id INT REFERENCES cards(id) NOT NULL,
+        card3id INT REFERENCES cards(id) NOT NULL,
+        card4id INT REFERENCES cards(id) NOT NULL,
+        card5id INT REFERENCES cards(id) NOT NULL,
         "typeId" INT REFERENCES types(id) NOT NULL,
-        "highCardId" INT REFERENCES cards(id) NOT NULL,
-        "highCardValue" INT NOT NULL,
-        UNIQUE ("userId", card1, card2, card3, card4, card5)
+        UNIQUE ("userId", card1id, card2id, card3id, card4id, card5id)
       )`);
 
-    console.log("    ...tables created.\n");
   } catch (error) {
     console.error(error);
 

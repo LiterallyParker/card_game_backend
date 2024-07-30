@@ -3,8 +3,7 @@ const { seedTables } = require("./tables");
 const { seedUsers } = require("./users");
 const { seedCards } = require("./cards");
 const { seedTypes } = require("./types");
-const { addToLeaderboard } = require("../database/leaderboard");
-const { setNewHand } = require("../database/hands");
+const { setNewHand, saveUserHand } = require("../database/hands");
 
 async function seed(client) {
 
@@ -16,16 +15,15 @@ async function seed(client) {
     await seedCards(client);
     await seedTypes(client);
     await seedUsers(client);
-    let iteratorCount = 300
-    console.log(`seeding ${iteratorCount * 3} entries to the leadeboard`)
-    while (iteratorCount > 0) {
-      const hand1 = await setNewHand(1)
-      await addToLeaderboard(1, hand1);
-      const hand2 = await setNewHand(2)
-      await addToLeaderboard(2, hand2);
-      const hand3 = await setNewHand(3)
-      await addToLeaderboard(3, hand3);
-      iteratorCount -= 1;
+    let handCount = 20;
+    while (handCount > 0) {
+      await setNewHand(1);
+      await setNewHand(2);
+      await setNewHand(3);
+      await saveUserHand(1);
+      await saveUserHand(2);
+      await saveUserHand(3);
+      handCount -= 1;
     }
 
     console.log("\n[=====] SEEDED [=====]");

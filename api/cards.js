@@ -1,5 +1,5 @@
 const express = require("express");
-const { generateHand, getCards } = require("../database/cards");
+const { getCards, generateRandomHand } = require("../database/cards");
 const cardsRoutes = express.Router();
 
 cardsRoutes.get("/", async (req, res, next) => {
@@ -15,11 +15,11 @@ cardsRoutes.get("/", async (req, res, next) => {
 
 cardsRoutes.get("/hand", async (req, res, next) => {
   try {
-    const { cards, type } = await generateHand();
-    res.status(200).send({ cards, type });
+    const hand = await generateRandomHand();
+    res.status(200).send(hand);
   } catch (error) {
     next(error);
   };
 });
 
-module.exports = cardsRoutes
+module.exports = cardsRoutes;
