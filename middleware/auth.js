@@ -60,30 +60,5 @@ const requireUser = async (req, res, next) => {
   }
   next();
 }
-
-const checkUserAgainstHand = async (req, res, next) => {
-  const { id } = req.params;
-  const { handId } = req.user;
-  if (Number(id) !== handId) {
-    res.status(400);
-    next({
-      error: true,
-      name: "UnauthorizedRequst",
-      message: "Not your cards, cheater!"
-    });
-  };
-  next();
-}
-
-const rejectUser = async (req, res, next) => {
-  if (!req.user) {
-    res.status(400);
-    next({
-      error: true,
-      name: "UnauthorizedRequest",
-      message: "User Unauthorized."
-    })
-  }
-}
  
-module.exports = { createToken, addUserToReq, requireUser, checkUserAgainstHand, rejectUser }
+module.exports = { createToken, addUserToReq, requireUser }

@@ -11,21 +11,12 @@ async function seedCards(client) {
     await client.query('INSERT INTO ranks(name, value) VALUES ($1, $2)', [rank.name, rank.value]);
   };
   
-  console.log("     seeding cards...")
-  let suitCount = 1;
-  let rankCount = 1;
-  let suitsLength = suits.length;
-  let ranksLength = ranks.length;
-  while (suitCount <= suitsLength) {
-    while (rankCount <= ranksLength) {
-      await client.query('INSERT INTO cards("suitId", "rankId") VALUES ($1, $2)', [suitCount, rankCount])
-      rankCount += 1
-    }
-    if (suitCount <= suitsLength) {
-      rankCount = 1
-    }
-    suitCount += 1
-  }
+  console.log("     seeding cards...");
+  for (let rank of ranks) {
+    for (let suit of suits) {
+      await client.query('INSERT INTO cards("suitId", "rankId") VALUES ($1, $2)', [suits.indexOf(suit) + 1, ranks.indexOf(rank) + 1]);
+    };
+  };
 };
 
 module.exports = { seedCards };

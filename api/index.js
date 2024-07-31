@@ -8,9 +8,6 @@ const cardsRoutes = require("./cards");
 api.use("/cards", cardsRoutes);
 
 const handsRoutes = require("./hands");
-api.use("/hand", handsRoutes);
-
-const leaderboardRoutes = require("./leaderboard");
-api.use("/leaderboard", leaderboardRoutes);
+api.use("/hands", handsRoutes);
 
 module.exports = api;

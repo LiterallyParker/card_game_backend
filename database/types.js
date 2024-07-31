@@ -62,7 +62,7 @@ function generateType({ ranks, suits, values }) {
     const slice = straightValues.slice(0, -1);
     let count = 0;
     for (let n of slice) {
-      if (straightValues[slice.indexOf(n) + 1] === n + 1) {
+      if (straightValues[slice.indexOf(n) + 1] === n - 1) {
         count += 1;
       };
     };
@@ -76,24 +76,23 @@ function generateType({ ranks, suits, values }) {
   if (scoreCard.straightFlush && getSmallest(values) === 10) {
     scoreCard.royalFlush = true;
   };
-  const returnObj = { id: 0, name: null }
   const keys = Object.keys(scoreCard).reverse();
   const possibleTypeIds = [];
   keys.forEach(key => {
     if (scoreCard[key]) {
       possibleTypeIds.push(Object.keys(scoreCard).indexOf(key));
-    }
-  })
+    };
+  });
   const typeId = getLargest(possibleTypeIds);
-  const type = types[typeId]
+  const type = types[typeId];
   return types[typeId];
 };
 
 async function getTypeById(id) {
   const SQL = `SELECT name FROM types WHERE id = $1`
   try {
-    const { rows: [type] } = await client.query(SQL, [id])
-    return type
+    const { rows: [type] } = await client.query(SQL, [id]);
+    return type;
   } catch (error) {
     console.error(error);
   };

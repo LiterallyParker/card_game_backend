@@ -4,7 +4,6 @@ const usersRoutes = express.Router();
 const { createToken, requireUser } = require("../middleware/auth");
 const dbUsers = require("../database/users");
 const { deleteHandById } = require("../database/hands");
-const { deleteFromLeaderboardByUserId } = require("../database/leaderboard");
 
 usersRoutes.post("/register", async (req, res, next) => {
   const { firstname, lastname, username, email, password, confirmedPassword } = req.body;
@@ -185,15 +184,6 @@ usersRoutes.delete("/account", requireUser, async (req, res, next) => {
   const { id, handId } = req.user
 
   try {
-    const leaderboardDeleted = await deleteFromLeaderboardByUserId(id);
-    if (!leaderboardDeleted) {
-      res.status(500);
-      next({
-        error: true,
-        name: "DeleteLeaderboardError",
-        message: `Failed to delete leaderboard entries with userId ${id}`
-      })
-    }
     const userDeleted = await dbUsers.deleteUserById(id);
     const handDeleted = await deleteHandById(handId);
     if (!handDeleted) {

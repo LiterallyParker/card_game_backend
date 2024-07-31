@@ -1,39 +1,25 @@
 const bcrypt = require("bcrypt");
 const client = require("../database");
-const { dbFields, generateCardIds } = require("../util");
-const { getCardsFromIds, attachScore } = require("./cards");
+const { dbFields } = require("../util");
+const { generateRandomHand } = require("./cards");
 
 async function addUser({ firstname, lastname, username, email, password }) {
-
+  const role = "Guest"
   // Hash Password
   const hash = await bcrypt.hash(password, Number(process.env.SALT_ROUNDS));
   delete password;
 
   // Build SQLs
   const userSQL = `
-  INSERT INTO users(firstname, lastname, username, email, role, "handId", hash)
-  VALUES ($1, $2, $3, $4, $5, $6, $7)
-  RETURNING id, firstname, lastname, username, email, "handId", role
-  `;
-  const handSQL = `
-  INSERT INTO hands(card1, card2, card3, card4, card5, "typeId", "highCardId", "highCardValue")
-  VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-  RETURNING id`
+  INSERT INTO users(firstname, lastname, username, email, role, hash, card1id, card2id, card3id, card4id, card5id, "typeId")
+  VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+  RETURNING id, firstname, lastname, username, email, role, card1id, card2id, card3id, card4id, card5id, "typeId"`;
 
   try {
-    const cardIds = generateCardIds();
-    
-    // Allat for two variables?? we'll come back...
-    const cards = await getCardsFromIds(cardIds);
-    const { type, highCard } = await attachScore(cards);
-    const values = cardIds.concat([type.id, highCard.id, highCard.value])
-
-    // Hand Query, THIS IS THE HAND ID
-    const { rows: [{ id }] } = await client.query(handSQL, values);
-
-    const { rows:[user] } = await client.query(userSQL, [ firstname, lastname, username, 
-    email, "guest", id, hash ]);
-
+    const { cardIds, type } = await generateRandomHand();
+    const SQLvalues = [ firstname, lastname, username, email, role, hash, ...cardIds ]
+    SQLvalues.push(type.id);
+    const { rows:[user] } = await client.query(userSQL, SQLvalues);
     // Return Response
     return user;
 
@@ -55,7 +41,7 @@ async function getUserByEmail(email) {
 };
 
 async function getUserByUsername(username) {
-  const SQL = `SELECT id, firstname, lastname, username, email, "handId", role, hash FROM users WHERE username=($1);`
+  const SQL = `SELECT id, firstname, lastname, username, email, role, hash FROM users WHERE username=($1);`
   try {
     const { rows } = await client.query(SQL, [username]);
     return rows[0];
@@ -64,9 +50,10 @@ async function getUserByUsername(username) {
     console.error(error);
   };
 };
+
 async function getUserById(id) {
   const SQL = `
-  SELECT id, firstname, lastname, username, email, "handId", role
+  SELECT id, firstname, lastname, username, email, role
   FROM users
   WHERE id = ($1);
   `
@@ -122,14 +109,14 @@ async function updateUserInfo(id, fields = {}) {
 };
 
 async function deleteUserById(id) {
-  const SQL = `DELETE FROM users WHERE id = $1`
+  const SQL = `DELETE FROM users WHERE id = $1`;
   try {
     const response = await client.query(SQL, [id]);
-    return response
+    return response;
   } catch (error) {
     console.error(error);
-  }
-}
+  };
+};
 
 module.exports = {
   addUser,

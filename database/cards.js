@@ -20,7 +20,7 @@ async function getCards() {
 async function getCardById(id) {
   const SQL = `
   SELECT cards.id as id, suits.name as suit, suits.id as "suitId", ranks.name as rank, ranks.value as value, suits."imageUrl" as "imageUrl"
-  FROM cards
+  FROM cards   
   JOIN suits on suits.id = cards."suitId"
   JOIN ranks on ranks.id = cards."rankId"
   WHERE cards.id = $1
@@ -33,31 +33,43 @@ async function getCardById(id) {
   };
 };
 
-async function generateHand() {
-
-  // Builds handIds Array
+async function generateRandomHand() {
   const cardIds = generateCardIds();
-  // Get cards based on random array of 5 ids
+  const hand = await generateHand(cardIds);
+  return hand;
+}
+
+async function generateHand(cardIds) {
+  
+  // Get cards
   const cards = await getCardsFromIds(cardIds);
   // score the cards
-  const result = await attachScore(cards);
-  result.cardIds = cardIds
+  const unsortedHand = await attachScore(cards);
+  // sort the cards
+  const hand = sortCards(unsortedHand);
 
-  return result;
-
+  return hand;
+  
+};
+const sortCards = (hand) => {
+  const { ranks, cards } = hand;
+  cards.sort((other, card) => {
+    if (other.value === card.value) {
+      return card.suitId - other.suitId;
+    };
+    return card.value - other.value;
+  });
+  cards.sort((other, card) => ranks[card.value] - ranks[other.value])
+  hand.cardIds = hand.cards.map(card => card.id);
+  return hand;
 };
 
-async function getCardsFromIds(ids = []) {
-  try {
-    const cards = [];
-    for (let id of ids) {
-      let card = await getCardById(id);
-      cards.push(card);
-    }
-    return cards;
-  } catch (error) {
-    console.error(error);
-  };
+async function getCardsFromIds(cardIds = []) {
+  const cards = []
+  for (let id of cardIds) {
+    cards.push(await getCardById(id));
+  }
+  return cards;
 };
 
 function getRanks(cards) {
@@ -77,50 +89,84 @@ function getSuits(cards) {
     if (suits[card.suit] === undefined) {
       suits[card.suit] = 0;
     };
-    suits[card.suit] += 1
-  })
+    suits[card.suit] += 1;
+  });
   return suits;
-}
+};
 
 function getValues(cards) {
   const values = [];
   cards.forEach((card) => {
     values.push(card.value);
   });
-  values.sort((other, value) => other - value);
   return values;
 }
 
-function getHighCard(cards) {
-  const sortedCards = cards.sort((other, card) => {
-    if (card.value === other.value) {
-      return card.suitId - other.suitId
+async function getValuesFromIds(cardIds) {
+  const SQL = `
+  SELECT ranks.value as value
+  FROM cards
+  WHERE id = $1
+  JOIN ranks ON ranks.id = cards."rankId"
+  `
+  try {
+    const values = []
+    for (let id of cardIds) {
+      const { rows: [card] } = await client.query(SQL, [id]);
+      values.push(card.value);
     }
-    return card.value - other.value
-    })
-  return { id: sortedCards[0].id, value: sortedCards[0].value }
+    return values;
+  } catch (error) {
+    
+  }
 }
+
+async function getValuesFromIds(ids = []) {
+  const SQL = `
+  SELECT ranks.value as value
+  FROM cards
+  JOIN suits on suits.id = cards."suitId"
+  JOIN ranks on ranks.id = cards."rankId"
+  WHERE cards.id = $1
+  `
+  try {
+    const values = []
+    for (let id of ids) {
+      const { rows: [card] } = await client.query(SQL, [id])
+      values.push(card.value);
+    }
+    return values;
+  } catch (error) {
+    console.error(error);
+  };
+}
+
+function sortValues(ranks, values) {
+  values.sort((other, value) => value - other);
+  values.sort((other, value) => ranks[value] - ranks[other]);
+  return values;
+};
 
 function getCardsInfo(cards) {
   const suits = getSuits(cards);
   const ranks = getRanks(cards);
-  const values = getValues(cards);
-  let highCard = getHighCard(cards);
-  return { cards, suits, ranks, values, highCard }
-}
+  const unsortedValues = getValues(cards);
+  const values = sortValues(ranks, unsortedValues);
+  return { cards, suits, ranks, values };
+};
 
-async function attachScore(cards) {
-  const InfoObject = getCardsInfo(cards);
+async function attachScore(hand) {
+  const scoredHand = getCardsInfo(hand);
   const type = generateType({
-    ranks: InfoObject.ranks,
-    suits: InfoObject.suits,
-    values: InfoObject.values
-  })
+    ranks: scoredHand.ranks,
+    suits: scoredHand.suits,
+    values: scoredHand.values
+  });
   const { name } = await getTypeById(type.id);
   type.name = name;
-  InfoObject.type = type;
+  scoredHand.type = type;
 
-  return InfoObject;
+  return scoredHand;
 
 }
 
@@ -128,6 +174,11 @@ module.exports = {
   getCards,
   generateHand,
   getCardById,
+  getValuesFromIds,
   getCardsFromIds,
-  attachScore
+  getValuesFromIds,
+  sortValues,
+  sortCards,
+  attachScore,
+  generateRandomHand
 };
