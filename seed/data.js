@@ -3,7 +3,7 @@ const users = [
     "firstname":"DEV_MODE",
     "lastname":"[ACTIVATED]",
     "username":"username1",
-    "email":"parkernash2001@gmail.com",
+    "email":"email1@website.com",
     "role":"SUPER SECRET CODE MAN",
     "password":"password4email1"
   },
