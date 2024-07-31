@@ -97,6 +97,9 @@ handsRoutes.get("/:userId", async (req, res, next) => {
     for (const { id, card1id, card2id, card3id, card4id, card5id } of hands ) {
       const cardIds = [card1id, card2id, card3id, card4id, card5id];
       const { cards, type } = await generateHand(cardIds);
+      cards.forEach(card => {
+        delete card.imageUrl;
+      });
       unsortedResult.push({ id, cards, type, cardIds });
     };
     const result = sortHands(unsortedResult);
