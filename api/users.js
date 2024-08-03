@@ -6,7 +6,7 @@ const dbUsers = require("../database/users");
 const { deleteHandById } = require("../database/hands");
 
 usersRoutes.post("/register", async (req, res, next) => {
-  const { firstname, lastname, username, email, password, confirmedPassword } = req.body;
+  const { firstname, lastname, username, password, confirmedPassword } = req.body;
 
   let _firstname = firstname
   let _lastname = lastname
@@ -16,7 +16,7 @@ usersRoutes.post("/register", async (req, res, next) => {
   };
 
   try {
-    if (!username || !email || !password || !confirmedPassword) {
+    if (!username || !password || !confirmedPassword) {
       return res.status(400).send({
         error: true,
         name: "NoFieldsError",
@@ -24,11 +24,11 @@ usersRoutes.post("/register", async (req, res, next) => {
       });
     };
     
-    if (username.length >= 18) {
+    if (username.length >= 16) {
       return res.status(400).send({
         error: true,
         name: "NoFieldsError",
-        message: "Username must be shorter than 18 chars."
+        message: "Username must be 16 chars or less."
       });
     }
 
@@ -49,16 +49,7 @@ usersRoutes.post("/register", async (req, res, next) => {
       });
     };
 
-    const existingEmail = await dbUsers.getUserByEmail(email);
-    if (existingEmail) {
-      return res.status(500).send({
-        error: true,
-        name: "EmailError",
-        message: "Email already in use."
-      });
-    };
-
-    const user = await dbUsers.addUser({ firstname: _firstname, lastname: _lastname, username, email, password });
+    const user = await dbUsers.addUser({ firstname: _firstname, lastname: _lastname, username, password });
     const token = await createToken(await user);
     return res.status(200).send({
       error: false,
@@ -112,7 +103,7 @@ usersRoutes.get("/account", requireUser, async (req, res, next) => {
 });
 
 usersRoutes.put("/account", requireUser, async (req, res, next) => {
-  const { firstname, lastname, username, email } = req.body
+  const { firstname, lastname, username } = req.body
   if (firstname && firstname === req.user.firstname) {
     res.status(500).send({
       error: true,
@@ -137,14 +128,6 @@ usersRoutes.put("/account", requireUser, async (req, res, next) => {
     })
     return;
   }
-  if (email && email === req.user.email) {
-    res.status(500).send({
-      error: true,
-      name: "EmailError",
-      messsage: `${email} is already set as your email.`
-    });
-    return;
-  }
   try {
     if (username) {
       const user = await dbUsers.getUserByUsername(username);
@@ -153,17 +136,6 @@ usersRoutes.put("/account", requireUser, async (req, res, next) => {
           error: true,
           name: "UsernameError",
           message: "Username taken."
-        })
-        return;
-      }
-    }
-    if (email) {
-      const user = await dbUsers.getUserByEmail(email);
-      if (user) {
-        res.status(500).send({
-          error: true,
-          name: "EmailError",
-          message: "Email already in use."
         })
         return;
       }
@@ -185,16 +157,6 @@ usersRoutes.delete("/account", requireUser, async (req, res, next) => {
 
   try {
     const userDeleted = await dbUsers.deleteUserById(id);
-    const handDeleted = await deleteHandById(handId);
-    if (!handDeleted) {
-      res.status(500);
-      next({
-        error: true,
-        name: "HandDeleteError",
-        message: `Hand with userId ${id} failed to delete. Ditching request.`
-      });
-      return;
-    };
     res.send({
       error: false,
       message: "Successfully deleted. Goodbye!"

@@ -1,7 +1,7 @@
 const express = require("express");
 const { setNewHand, saveUserHand, getHandsByUserId, deleteHandById, getHandById } = require("../database/hands");
 const { requireUser } = require("../middleware/auth");
-const { generateHand } = require("../database/cards");
+const { generateHand, regenerateCards } = require("../database/cards");
 const { getUserCardIds } = require("../database/hands");
 const { sortHands } = require("../util");
 const { error } = require("console");
@@ -15,11 +15,7 @@ handsRoutes.get("/", requireUser, async (req, res, next) => {
     // Gets the array of cardIds from the users table
     const cardIds = await getUserCardIds(id);
 
-    // Last digit is the TypeId, don't need it for this.
-    cardIds.pop();
-
-    // Creates a hand object from the cardIds
-    const hand = await generateHand(cardIds);
+    const hand = await regenerateCards(cardIds);
 
     res.status(200).send({ error: false, hand });
 
@@ -93,16 +89,16 @@ handsRoutes.get("/:userId", async (req, res, next) => {
       });
       return;
     };
-    const unsortedResult = [];
-    for (const { id, card1id, card2id, card3id, card4id, card5id } of hands ) {
-      const cardIds = [card1id, card2id, card3id, card4id, card5id];
-      const { cards, type } = await generateHand(cardIds);
-      cards.forEach(card => {
-        delete card.imageUrl;
-      });
-      unsortedResult.push({ id, cards, type, cardIds });
-    };
-    const result = sortHands(unsortedResult);
+    const result = [];
+    for (let hand of hands) {
+      const { id } = hand;
+      let returnHand = { id };
+      delete hand.id;
+      let QUERY = Object.values(hand);
+      returnHand.entry = await regenerateCards(QUERY);
+      returnHand.entry.cards.forEach(card => delete card.imageUrl);
+      result.push(returnHand);
+    }
     res.send(result);
 
   } catch (error) {

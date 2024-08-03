@@ -1,9 +1,9 @@
 const bcrypt = require("bcrypt");
-const client = require("../database");
+const client = require(".");
 const { dbFields } = require("../util");
 const { generateRandomHand } = require("./cards");
 
-async function addUser({ firstname, lastname, username, email, password }) {
+async function addUser({ firstname, lastname, username, password }) {
   const role = "Guest"
   // Hash Password
   const hash = await bcrypt.hash(password, Number(process.env.SALT_ROUNDS));
@@ -11,13 +11,13 @@ async function addUser({ firstname, lastname, username, email, password }) {
 
   // Build SQLs
   const userSQL = `
-  INSERT INTO users(firstname, lastname, username, email, role, hash, card1id, card2id, card3id, card4id, card5id, "typeId")
-  VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
-  RETURNING id, firstname, lastname, username, email, role, card1id, card2id, card3id, card4id, card5id, "typeId"`;
+  INSERT INTO users(firstname, lastname, username, role, hash, card1id, card2id, card3id, card4id, card5id, card1val, card2val, card3val, card4val, card5val, "typeId")
+  VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
+  RETURNING id, firstname, lastname, username, role, card1id, card2id, card3id, card4id, card5id, "typeId"`;
 
   try {
-    const { cardIds, type } = await generateRandomHand();
-    const SQLvalues = [ firstname, lastname, username, email, role, hash, ...cardIds ]
+    const { QUERY, type } = await generateRandomHand();
+    const SQLvalues = [ firstname, lastname, username, role, hash, ...QUERY ]
     SQLvalues.push(type.id);
     const { rows:[user] } = await client.query(userSQL, SQLvalues);
     // Return Response
@@ -29,19 +29,8 @@ async function addUser({ firstname, lastname, username, email, password }) {
   };
 };
 
-async function getUserByEmail(email) {
-  const SQL = `SELECT email FROM users WHERE email=($1);`
-  try {
-    const { rows } = await client.query(SQL, [email]);
-    return rows[0];
-
-  } catch (error) {
-    console.error(error)
-  }
-};
-
 async function getUserByUsername(username) {
-  const SQL = `SELECT id, firstname, lastname, username, email, role, hash FROM users WHERE username=($1);`
+  const SQL = `SELECT id, firstname, lastname, username, role, hash FROM users WHERE username=($1);`
   try {
     const { rows } = await client.query(SQL, [username]);
     return rows[0];
@@ -53,7 +42,7 @@ async function getUserByUsername(username) {
 
 async function getUserById(id) {
   const SQL = `
-  SELECT id, firstname, lastname, username, email, role
+  SELECT id, firstname, lastname, username, role
   FROM users
   WHERE id = ($1);
   `
@@ -95,7 +84,7 @@ async function updateUserInfo(id, fields = {}) {
   UPDATE users
   SET ${ insert }
   WHERE id=${ id }
-  RETURNING id, username, email, firstname, lastname;
+  RETURNING id, username, firstname, lastname;
   `;
 
   try {
@@ -121,7 +110,6 @@ async function deleteUserById(id) {
 module.exports = {
   addUser,
   getUserById,
-  getUserByEmail,
   getUserByUsername,
   getUser,
   updateUserInfo,

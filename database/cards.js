@@ -1,6 +1,6 @@
-const client = require("../database");
+const client = require(".");
 const { generateCardIds } = require("../util");
-const { generateType, getTypeById } = require("../database/types");
+const { generateType, getTypeById } = require("./types");
 async function getCards() {
   const SQL = `
   SELECT cards.id as id, suits.name as suit, ranks.name as rank, ranks.value as value, suits."imageUrl" as "imageUrl" FROM cards
@@ -51,6 +51,19 @@ async function generateHand(cardIds) {
   return hand;
   
 };
+
+async function regenerateCards(QUERY) {
+  // Hand QUERYS are as follows
+  // [userId, card1id, card2id, card3id, card4id, card5id, card1val, card2val, card3val, card4val, card5val, "typeId"]
+  const userId = QUERY.slice(0,1)[0];
+  const cardIds = QUERY.slice(1,6);
+  const cardVals = QUERY.slice(6,11);
+  const typeId = QUERY.slice(11,12)[0];
+  const cards = await getCardsFromIds(cardIds);
+  const type = await getTypeById(typeId);
+  return { cards, type }
+}
+
 const sortCards = (hand) => {
   const { ranks, cards } = hand;
   cards.sort((other, card) => {
@@ -61,6 +74,7 @@ const sortCards = (hand) => {
   });
   cards.sort((other, card) => ranks[card.value] - ranks[other.value])
   hand.cardIds = hand.cards.map(card => card.id);
+  hand.QUERY = [...hand.cardIds, ...hand.values]
   return hand;
 };
 
@@ -180,5 +194,6 @@ module.exports = {
   sortValues,
   sortCards,
   attachScore,
-  generateRandomHand
+  generateRandomHand,
+  regenerateCards
 };

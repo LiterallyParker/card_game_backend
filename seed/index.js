@@ -14,17 +14,6 @@ async function seed(client) {
     await seedTables(client);
     await seedCards(client);
     await seedTypes(client);
-    await seedUsers(client);
-    let handCount = 5;
-    while (handCount > 0) {
-      await setNewHand(1);
-      await setNewHand(2);
-      await setNewHand(3);
-      await saveUserHand(1);
-      await saveUserHand(2);
-      await saveUserHand(3);
-      handCount -= 1;
-    }
 
     console.log("\n[=====] SEEDED [=====]");
   } catch (error) {

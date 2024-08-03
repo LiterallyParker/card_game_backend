@@ -50,14 +50,18 @@ async function seedTables(client) {
         firstname VARCHAR(255),
         lastname VARCHAR(255),
         username VARCHAR(255) UNIQUE NOT NULL,
-        email VARCHAR(255) NOT NULL,
         role VARCHAR(255) NOT NULL,
         hash VARCHAR(255) NOT NULL,
         card1id INT REFERENCES cards(id) NOT NULL,
+        card1val INT NOT NULL,
         card2id INT REFERENCES cards(id) NOT NULL,
+        card2val INT NOT NULL,
         card3id INT REFERENCES cards(id) NOT NULL,
+        card3val INT NOT NULL,
         card4id INT REFERENCES cards(id) NOT NULL,
+        card4val INT NOT NULL,
         card5id INT REFERENCES cards(id) NOT NULL,
+        card5val INT NOT NULL,
         "typeId" INT REFERENCES types(id) NOT NULL
       )`);
 
@@ -66,10 +70,15 @@ async function seedTables(client) {
         id SERIAL PRIMARY KEY,
         "userId" INT REFERENCES users(id) NOT NULL,
         card1id INT REFERENCES cards(id) NOT NULL,
+        card1val INT NOT NULL,
         card2id INT REFERENCES cards(id) NOT NULL,
+        card2val INT NOT NULL,
         card3id INT REFERENCES cards(id) NOT NULL,
+        card3val INT NOT NULL,
         card4id INT REFERENCES cards(id) NOT NULL,
+        card4val INT NOT NULL,
         card5id INT REFERENCES cards(id) NOT NULL,
+        card5val INT NOT NULL,
         "typeId" INT REFERENCES types(id) NOT NULL,
         UNIQUE ("userId", card1id, card2id, card3id, card4id, card5id)
       )`);

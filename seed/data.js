@@ -2,15 +2,15 @@ const users = [
   {
     "firstname":"DEV_MODE",
     "lastname":"[ACTIVATED]",
-    "username":"username1",
-    "email":"email1@website.com",
-    "role":"SUPER SECRET CODE MAN",
-    "password":"password4email1"
+    "username":"LiterallyParker",
+    "email":"parkernash2001@gmail.com",
+    "role":"DEV",
+    "password":"OdieOdinson2021!"
   },
   {
     "firstname":"Micheal",
     "lastname":"Scott",
-    "username":"username2",
+    "username":"MScott51",
     "email":"email2@website.com",
     "role":"guest",
     "password":"password4email2"
@@ -18,7 +18,7 @@ const users = [
   {
     "firstname":"Jeff",
     "lastname":"Gordon",
-    "username":"username3",
+    "username":"ShakeNBake",
     "email":"email3@website.com",
     "role":"guest",
     "password":"password4email3"

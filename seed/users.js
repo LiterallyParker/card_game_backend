@@ -9,9 +9,9 @@ async function seedUsers() {
 
     for (let user of users) {
 
-      const { firstname, lastname, username, email, password } = user;
+      const { firstname, lastname, username, password } = user;
 
-      await addUser({ firstname, lastname, username, email, password })
+      await addUser({ firstname, lastname, username, password })
     }
 
   } catch (error) {
